@@ -2,9 +2,9 @@
 
 '''
 description:
-    This script was written to download an archive, i.e. no history or
-    meta-information of a GitHub repository or subdirectory of a repo..  It was
-    created as GitHub doesn't provide archiving, i.e. git-archive, see
+    This script was written to download an archive, i.e. no commit history,
+    issues, etc., of a GitHub repository or its subdirectory.  It was created
+    as GitHub doesn't provide archiving, i.e. git-archive, see
     https://help.github.com/articles/can-i-archive-a-repository/
 
 todo:
@@ -12,6 +12,10 @@ todo:
 
 Example usage:
     gh_subdir_downl.py -u 8leggedunicorn -r Udacity -s p1_stroop_effect -f 'README|.*\.(csv|bib|py|tex)'
+
+    Downloads the README.md, and any file ending with .csv,.bib, .py, or .tex
+    of the subdirectory p1_stroop_effect from the GitHub directory Udacity
+    owned by the GitHub user 8leggedunicorn.
 '''
 
 import requests
@@ -36,7 +40,7 @@ Specify via regex what files to download.  As an example:
 
 -f 'README|.*\.(csv|bib|py|tex)'
 
-to download only csv, bib, py and tex files.
+to download only files containing 'README', or files ending in .csv, .bib, .py and .tex.
 '''
 parser.add_argument("-f", "--filetypes", type=str, help = fhelp, required=False)
 

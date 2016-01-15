@@ -6,10 +6,10 @@ description:
     It was created as GitHub doesn't provide archiving, i.e. git-archive, see
     https://help.github.com/articles/can-i-archive-a-repository/
 
-todo: 
-    1. will only download at a depth of 1, that is if the directory contains
-    directories script won't succeed at downloading, i.e. needs recursive downloads
-    2. general addition of error messages
+    There is an internal variable specifying via regex the file filter to use
+    to only download the desired files, called 'filetypes'.
+todo:
+    1. general addition of error messages
 
 Example usage:
     gh_subdir_downl.py -u 8leggedunicorn -r Udacity -s p1_stroop_effect
@@ -36,35 +36,54 @@ repo = args.repository
 subdir = args.subdirectory
 path = subdir
 
+#filetypes = 'README|.*\.(csv|bib|py|tex)'
+filetypes = '.*'
 
 if args.verbose:
     print("verbosity turned on")
 
-url = 'https://api.github.com/repos/' + user + '/' + repo + \
-    '/contents/' + path
+def gen_url( user, repo, path ):
+    url = 'https://api.github.com/repos/' + user + '/' + repo + \
+        '/contents/' + path
+    return url
 
-if not os.path.exists(path):
-    os.makedirs(path)
+def ls_subdir_content( url, path ):
+    # creates subdir and returns list of objects - files, and directories
+    if not os.path.exists(path):
+        os.makedirs(path)
 
-headers = { 'Accept' : 'application/vnd.github.v3.raw' }
-r = requests.get( url, headers = headers )
+    headers = { 'Accept' : 'application/vnd.github.v3.raw' }
+    r = requests.get( url, headers = headers )
+    contents = json.loads( r.text )
+    return contents
 
-contents = json.loads(r.text)
 
-def get_file( url, file_name, path):
+def get_file( url, file_name, path ):
+    # Function to download a file
     file_path = os.path.join( path, file_name )
     response = requests.get( url, stream=True )
+
+    print( 'Direct link {url}\nDownloading {s}'.format( url = url, s = file_name ) )
+
     file_content = requests.get(url).text #.encode('utf-8')
     with open( file_path , 'w' ) as out_file:
         out_file.write(file_content)
+    print( '{s} retrieved'.format( s = file_name ) )
 
-filetypes = 'README|.*\.(csv|bib|py|tex)'
+def recurs_dl( contents , path ):
+    for obj in contents:
+        if obj[ 'type' ] == 'file':
+            file_name = obj[ 'name' ]
+            if re.search(filetypes, file_name): # only download selected files
+                url = obj[ 'download_url' ]
+                get_file( url, file_name, path )
+        elif obj[ 'type' ] == 'dir':
+            subdir_path = os.path.join( path , obj[ 'name' ] )
+            print(subdir_path)
+            subdir_url = gen_url( user, repo, subdir_path )
+            subdir_contents = ls_subdir_content( subdir_url, subdir_path )
+            recurs_dl( subdir_contents , subdir_path )
 
-for file in contents:
-    file_name = file[ 'name' ]
-    if re.search(filetypes, file_name):
-        url = file[ 'download_url' ]
-        print('Direct link {}'.format(url))
-        print( 'Downloading {s}'.format( s = file_name ) )
-        get_file( url, file_name, path )
-        print( '{s} retrieved'.format( s = file_name ) )
+url = gen_url( user, repo, path )
+contents = ls_subdir_content( url, path )
+recurs_dl( contents , path )

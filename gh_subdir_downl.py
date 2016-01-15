@@ -38,8 +38,7 @@ Specify via regex what files to download.  As an example:
 
 to download only csv, bib, py and tex files.
 '''
-parser.add_argument("-f", "--filetypes", type=str, help = fhelp,
-        required=False)
+parser.add_argument("-f", "--filetypes", type=str, help = fhelp, required=False)
 
 args = parser.parse_args()
 
@@ -54,7 +53,6 @@ else:
 
 if args.filetypes:
     filetypes = args.filetypes
-    #filetypes = 'README|.*\.(csv|bib|py|tex)'
 else:
     filetypes = '.*'
 
@@ -76,9 +74,9 @@ def ls_subdir_content( url, path ):
     return contents
 
 def get_file( url, file_name, path ):
+    # Function to download a file from GitHub
     if not os.path.exists(path) and path != '':
         os.makedirs(path)
-    # Function to download a file
     file_path = os.path.join( path, file_name )
     if os.path.isfile( file_path ):
         print( "{f} already exists on the local file system".format( f = file_path ) )
@@ -95,7 +93,6 @@ def recurs_dl( contents , path ):
     for obj in contents:
         if obj[ 'type' ] == 'file':
             file_name = obj[ 'name' ]
-            # filter downloads using the regex obj 'filetypes'
             if re.search(filetypes, file_name):
                 url = obj[ 'download_url' ]
                 get_file( url, file_name, path )
@@ -105,6 +102,7 @@ def recurs_dl( contents , path ):
             subdir_contents = ls_subdir_content( subdir_url, subdir_path )
             recurs_dl( subdir_contents , subdir_path )
 
+# Call function to create and dl file/create dir. structure:
 url = gen_url( user, repo, path )
 contents = ls_subdir_content( url, path )
 recurs_dl( contents , path )

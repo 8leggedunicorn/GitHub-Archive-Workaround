@@ -69,8 +69,8 @@ def gen_url( user, repo, path='' ):
     return url
 
 def ls_subdir_content( url, path ):
-    # returns list of objects - files, and directories contained within a
-    # repository or subdirectory
+    # returns list of objects - files, symlinks, and directories contained
+    # within a repository or its subdirectory
 
     headers = { 'Accept' : 'application/vnd.github.v3.raw' }
     r = requests.get( url, headers = headers )
@@ -95,7 +95,7 @@ def get_file( url, file_name, path ):
 
 def recurs_dl( contents , path ):
     for obj in contents:
-        if obj[ 'type' ] == 'file':
+        if obj[ 'type' ] == 'file' or obj[ 'type' ] == 'symlink':
             file_name = obj[ 'name' ]
             if re.search(filetypes, file_name):
                 url = obj[ 'download_url' ]

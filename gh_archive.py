@@ -11,7 +11,7 @@ todo:
     1. general addition of error messages
 
 Example usage:
-    gh_subdir_downl.py -u 8leggedunicorn -r Udacity -s p1_stroop_effect -f 'README|.*\.(csv|bib|py|tex)'
+    gh_archive.py -u 8leggedunicorn -r Udacity -s p1_stroop_effect -f 'README|.*\.(csv|bib|py|tex)'
 
     Downloads the README.md, and any file ending with .csv,.bib, .py, or .tex
     of the subdirectory p1_stroop_effect from the GitHub directory Udacity
